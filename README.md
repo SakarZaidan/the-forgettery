@@ -1,8 +1,8 @@
-# 🗺️ The Forgettery — Spatio-Temporal Memory Cartography
+# The Forgettery — Spatio-Temporal Memory Cartography
 
 The Forgettery is a world-class machine learning project for educational hackathons. It visualizes and models student memory decay in real-time, creating a "living map" of knowledge.
 
-## 🧠 Core Intelligence
+## Core Intelligence
 
 ### 1. Spaced Repetition (HLR)
 The system uses a custom **Half-Life Regression** engine (inspired by Settles & Meeder, 2016) to predict the exponential decay of concepts. Each "tile" on the grid represents a concept whose half-life grows with successful recall and shrinks with neglect.
@@ -13,7 +13,7 @@ A **Gaussian Process Regressor** (RBF kernel) analyzes your demonstrated mastery
 ### 3. Dynamic Curriculum (Gemini API)
 Powered exclusively by **Google Gemini**, the game procedurally generates custom 12x12 curriculum grids for *any* topic—from "Quantum Computing" to "Ancient History"—at runtime.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Python 3.10+
@@ -48,7 +48,7 @@ Powered exclusively by **Google Gemini**, the game procedurally generates custom
 1. **Start Backend:** `cd backend && uvicorn app.main:app --port 8000`
 2. **Start Frontend:** `cd frontend && npm run dev`
 
-## 🎮 How to Play
+## How to Play
 1. **Neural Sync:** On the landing page, enter any topic you want to master. Gemini will generate a custom landscape of 30 concepts.
 2. **Navigation:** Use **WASD** or **Arrow Keys** to move your "Neural Probe" across the grid.
 3. **Recall:** Stepping on a tile triggers a Gemini-generated MCQ. Successful recall stabilizes the tile and boosts its half-life.
