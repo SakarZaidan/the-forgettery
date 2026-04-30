@@ -1,0 +1,55 @@
+{
+  "subject": "Python Fundamentals",
+  "grid_size": 12,
+  "concepts": [
+    { "key": "py_variables", "name": "Variables", "category": "basics", "difficulty": 1, "grid_x": 0, "grid_y": 0, "description": "Storing data in memory using names." },
+    { "key": "py_data_types", "name": "Data Types", "category": "basics", "difficulty": 1, "grid_x": 1, "grid_y": 0, "description": "Strings, Integers, Floats, and Booleans." },
+    { "key": "py_operators", "name": "Operators", "category": "basics", "difficulty": 1, "grid_x": 2, "grid_y": 0, "description": "Arithmetic, logical, and assignment symbols." },
+    { "key": "py_input", "name": "Input/Output", "category": "basics", "difficulty": 1, "grid_x": 3, "grid_y": 0, "description": "Using input() and print() functions." },
+    { "key": "py_comments", "name": "Comments", "category": "basics", "difficulty": 1, "grid_x": 4, "grid_y": 0, "description": "Documenting code using # and docstrings." },
+    { "key": "py_casting", "name": "Type Casting", "category": "basics", "difficulty": 2, "grid_x": 5, "grid_y": 0, "description": "Converting between different data types." },
+    { "key": "py_booleans", "name": "Booleans", "category": "basics", "difficulty": 1, "grid_x": 0, "grid_y": 1, "description": "True or False values and logic." },
+    { "key": "py_numbers", "name": "Numbers", "category": "basics", "difficulty": 1, "grid_x": 1, "grid_y": 1, "description": "Int vs Float vs Complex types." },
+    
+    { "key": "py_if", "name": "If Statement", "category": "control_flow", "difficulty": 2, "grid_x": 0, "grid_y": 2, "description": "Conditional execution of code." },
+    { "key": "py_else", "name": "Else/Elif", "category": "control_flow", "difficulty": 2, "grid_x": 1, "grid_y": 2, "description": "Alternative paths in conditions." },
+    { "key": "py_for", "name": "For Loop", "category": "control_flow", "difficulty": 2, "grid_x": 2, "grid_y": 2, "description": "Iterating over sequences." },
+    { "key": "py_while", "name": "While Loop", "category": "control_flow", "difficulty": 2, "grid_x": 3, "grid_y": 2, "description": "Repeating code while condition is true." },
+    { "key": "py_break", "name": "Break/Continue", "category": "control_flow", "difficulty": 3, "grid_x": 4, "grid_y": 2, "description": "Controlling loop execution flow." },
+    { "key": "py_range", "name": "Range()", "category": "control_flow", "difficulty": 2, "grid_x": 0, "grid_y": 3, "description": "Generating numerical sequences." },
+    { "key": "py_nested_loops", "name": "Nested Loops", "category": "control_flow", "difficulty": 3, "grid_x": 1, "grid_y": 3, "description": "Loops inside other loops." },
+    
+    { "key": "py_lists", "name": "Lists", "category": "data_structures", "difficulty": 2, "grid_x": 0, "grid_y": 4, "description": "Ordered, mutable collections." },
+    { "key": "py_list_methods", "name": "List Methods", "category": "data_structures", "difficulty": 3, "grid_x": 1, "grid_y": 4, "description": "Append, pop, sort, and remove." },
+    { "key": "py_tuples", "name": "Tuples", "category": "data_structures", "difficulty": 2, "grid_x": 2, "grid_y": 4, "description": "Ordered, immutable collections." },
+    { "key": "py_dicts", "name": "Dictionaries", "category": "data_structures", "difficulty": 3, "grid_x": 3, "grid_y": 4, "description": "Key-value pair mappings." },
+    { "key": "py_sets", "name": "Sets", "category": "data_structures", "difficulty": 3, "grid_x": 4, "grid_y": 4, "description": "Unordered, unique item collections." },
+    { "key": "py_comprehensions", "name": "Comprehensions", "category": "data_structures", "difficulty": 4, "grid_x": 0, "grid_y": 5, "description": "Elegant one-line collection builders." },
+    { "key": "py_slicing", "name": "Slicing", "category": "data_structures", "difficulty": 3, "grid_x": 1, "grid_y": 5, "description": "Extracting portions of sequences." },
+    
+    { "key": "py_def", "name": "Defining Functions", "category": "functions", "difficulty": 3, "grid_x": 0, "grid_y": 6, "description": "Reusable blocks of code." },
+    { "key": "py_params", "name": "Parameters/Args", "category": "functions", "difficulty": 3, "grid_x": 1, "grid_y": 6, "description": "Passing data into functions." },
+    { "key": "py_return", "name": "Return Value", "category": "functions", "difficulty": 3, "grid_x": 2, "grid_y": 6, "description": "Getting results back from functions." },
+    { "key": "py_lambda", "name": "Lambda Functions", "category": "functions", "difficulty": 4, "grid_x": 3, "grid_y": 6, "description": "Anonymous one-line functions." },
+    { "key": "py_scope", "name": "Variable Scope", "category": "functions", "difficulty": 4, "grid_x": 0, "grid_y": 7, "description": "Local vs Global visibility." },
+    { "key": "py_decorators", "name": "Decorators", "category": "functions", "difficulty": 5, "grid_x": 1, "grid_y": 7, "description": "Modifying function behavior dynamically." },
+    { "key": "py_args_kwargs", "name": "*args & **kwargs", "category": "functions", "difficulty": 4, "grid_x": 2, "grid_y": 7, "description": "Handling variable number of arguments." },
+    
+    { "key": "py_classes", "name": "Classes & Objects", "category": "oop", "difficulty": 4, "grid_x": 0, "grid_y": 8, "description": "Blueprints for creating objects." },
+    { "key": "py_init", "name": "__init__ Method", "category": "oop", "difficulty": 4, "grid_x": 1, "grid_y": 8, "description": "Initializing object attributes." },
+    { "key": "py_methods", "name": "Instance Methods", "category": "oop", "difficulty": 4, "grid_x": 2, "grid_y": 8, "description": "Functions defined inside a class." },
+    { "key": "py_inheritance", "name": "Inheritance", "category": "oop", "difficulty": 5, "grid_x": 3, "grid_y": 8, "description": "Creating subclasses from base classes." },
+    { "key": "py_encapsulation", "name": "Encapsulation", "category": "oop", "difficulty": 5, "grid_x": 0, "grid_y": 9, "description": "Restricting access to data." },
+    { "key": "py_polymorphism", "name": "Polymorphism", "category": "oop", "difficulty": 5, "grid_x": 1, "grid_y": 9, "description": "Uniform interface for different types." },
+    { "key": "py_dunder", "name": "Dunder Methods", "category": "oop", "difficulty": 5, "grid_x": 2, "grid_y": 9, "description": "Special double-underscore methods." },
+    
+    { "key": "py_generators", "name": "Generators", "category": "advanced", "difficulty": 5, "grid_x": 0, "grid_y": 10, "description": "Memory-efficient iterators using yield." },
+    { "key": "py_async", "name": "Async/Await", "category": "advanced", "difficulty": 5, "grid_x": 1, "grid_y": 10, "description": "Asynchronous programming in Python." },
+    { "key": "py_exceptions", "name": "Exception Handling", "category": "advanced", "difficulty": 4, "grid_x": 2, "grid_y": 10, "description": "Try/Except blocks for error safety." },
+    { "key": "py_modules", "name": "Modules & Packages", "category": "advanced", "difficulty": 4, "grid_x": 3, "grid_y": 10, "description": "Organizing code into files and folders." },
+    { "key": "py_iterators", "name": "Iterators", "category": "advanced", "difficulty": 5, "grid_x": 0, "grid_y": 11, "description": "Custom __iter__ and __next__ objects." },
+    { "key": "py_file_io", "name": "File Handling", "category": "advanced", "difficulty": 4, "grid_x": 1, "grid_y": 11, "description": "Reading and writing to files." },
+    { "key": "py_regex", "name": "Regular Expressions", "category": "advanced", "difficulty": 5, "grid_x": 2, "grid_y": 11, "description": "Advanced pattern matching." },
+    { "key": "py_context_managers", "name": "Context Managers", "category": "advanced", "difficulty": 5, "grid_x": 3, "grid_y": 11, "description": "Using 'with' for resource management." }
+  ]
+}
