@@ -24,24 +24,36 @@ Schema:
 }}
 """
 
-CONCEPT_GEN_PROMPT = """You are a curriculum designer. Generate exactly 30 educational concepts for the topic: "{topic}".
-Organize them into 5 categories that represent a logical progression.
-Map each concept to a 12x12 grid (grid_x and grid_y from 0 to 11).
-Space the categories into distinct grid clusters.
+CONCEPT_GEN_PROMPT = """You are a curriculum designer. Generate EXACTLY 144 educational concepts for the topic: "{topic}" to fill a complete 12x12 grid.
 
-Return ONLY valid JSON with this schema:
+Rules:
+- EXACTLY 144 concepts total — no more, no less.
+- Organize into exactly 6 categories representing a logical learning progression (easy → hard).
+- Assign each category to exactly 2 consecutive columns (24 concepts each, rows 0–11).
+  • Category 1 (most foundational) → grid_x 0–1
+  • Category 2 → grid_x 2–3
+  • Category 3 → grid_x 4–5
+  • Category 4 → grid_x 6–7
+  • Category 5 → grid_x 8–9
+  • Category 6 (most advanced) → grid_x 10–11
+- Every (grid_x, grid_y) pair must be unique. Cover all 144 positions (x 0–11, y 0–11).
+- Use snake_case unique keys prefixed by a short topic abbreviation.
+- Names must be concise (≤ 20 chars).
+- Difficulty scales with category (category 1 → difficulty 1–2, category 6 → difficulty 4–5).
+
+Return ONLY valid JSON, no markdown, no extra text:
 {{
   "subject": "{topic}",
   "grid_size": 12,
   "concepts": [
-    {{ 
-      "key": "unique_id", 
-      "name": "Display Name", 
-      "category": "cat_name", 
-      "difficulty": 1-5, 
-      "grid_x": 0-11, 
-      "grid_y": 0-11, 
-      "description": "Short definition" 
+    {{
+      "key": "topic_unique_id",
+      "name": "Short Name",
+      "category": "category_slug",
+      "difficulty": 1,
+      "grid_x": 0,
+      "grid_y": 0,
+      "description": "One-sentence definition."
     }}
   ]
 }}

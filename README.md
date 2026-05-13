@@ -1,59 +1,116 @@
 # The Forgettery — Spatio-Temporal Memory Cartography
 
-The Forgettery is a world-class machine learning project for educational hackathons. It visualizes and models student memory decay in real-time, creating a "living map" of knowledge.
+Navigate a living 12×12 isometric map of any subject you choose. Every tile is a concept. Every answer reshapes the map. Leave tiles unvisited long enough and they decay, crack, and vanish into the void.
 
-## Core Intelligence
-
-### 1. Spaced Repetition (HLR)
-The system uses a custom **Half-Life Regression** engine (inspired by Settles & Meeder, 2016) to predict the exponential decay of concepts. Each "tile" on the grid represents a concept whose half-life grows with successful recall and shrinks with neglect.
-
-### 2. Spatial Uncertainty (Gaussian Process)
-A **Gaussian Process Regressor** (RBF kernel) analyzes your demonstrated mastery at specific grid points and interpolates uncertainty across the map. This drives the "Knowledge Fog"—hiding areas where the system lacks data on your proficiency.
-
-### 3. Dynamic Curriculum (Gemini API)
-Powered exclusively by **Google Gemini**, the game procedurally generates custom 12x12 curriculum grids for *any* topic—from "Quantum Computing" to "Ancient History"—at runtime.
-
-## Getting Started
-
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- **Gemini API Key** (Get one at [aistudio.google.com](https://aistudio.google.com/))
-
-### Installation
-
-1. **Clone & Setup Backend**
-   ```bash
-   cd backend
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-2. **Configure Environment**
-   Create a `.env` file in the `backend/` directory:
-   ```env
-   DATABASE_URL=sqlite:///./forgettery.db
-   GEMINI_API_KEY=your_key_here
-   GEMINI_MODEL=gemini-2.0-flash
-   ```
-
-3. **Setup Frontend**
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-### Execution
-1. **Start Backend:** `cd backend && uvicorn app.main:app --port 8000`
-2. **Start Frontend:** `cd frontend && npm run dev`
-
-## How to Play
-1. **Neural Sync:** On the landing page, enter any topic you want to master. Gemini will generate a custom landscape of 30 concepts.
-2. **Navigation:** Use **WASD** or **Arrow Keys** to move your "Neural Probe" across the grid.
-3. **Recall:** Stepping on a tile triggers a Gemini-generated MCQ. Successful recall stabilizes the tile and boosts its half-life.
-4. **The Void:** Ignore tiles too long, and they will crack and vanish into the Void, becoming impassable.
-5. **Dashboard:** Open the sidebar to see live ML telemetry—uncertainty heatmaps, decay trends, and your behavioral profile (e.g., "Neural Speedrunner").
+The game is a real-time visualisation of your memory — powered by four ML models running continuously in the backend.
 
 ---
-*Built for the ML Hackathon 2026.*
+
+## ML Core
+
+### Half-Life Regression (HLR)
+
+Each tile has a **half-life**: the amount of time before your recall probability drops to 50%. Correct answers grow the half-life; wrong answers shrink it; fast correct answers grow it faster (confidence signal). After every answer the model runs online SGD to update a shared weight vector that learns _your specific memory curve_ across the whole subject.
+
+```
+P(recall) = 2^( −Δt / h )
+log₂(h)   = log₂(h₀) + θ · x
+```
+
+Tile colours reflect live recall probability: cyan (> 80%) → amber/cracked (20–80%) → void (≤ 20%).
+
+### Gaussian Process Uncertainty
+
+A GP Regressor (RBF + ConstantKernel + WhiteKernel) fits on every tile you've visited, using grid position, difficulty, and category as features and your accuracy as the target. It then predicts expected performance **and uncertainty** across all 144 tiles. High uncertainty = deep fog. As you explore, the fog lifts in nearby regions even before you visit them — the GP infers similarity from spatial proximity.
+
+### Thompson Sampling (Compass)
+
+Each concept category maintains a Beta distribution `Beta(α, β)` tracking your success rate. At each step the compass samples from each category's Beta distribution, blends the sample with the category's decay urgency `(1 − mean_recall)`, and points the probe at the highest-priority region. The stochastic sampling means the compass occasionally steers you toward unexplored areas rather than always firefighting the worst-decaying tile.
+
+### K-Means Learner Profiler
+
+After 5+ answered questions the profiler clusters your behaviour into one of four archetypes using `[accuracy, response_time, streak_score, accuracy_variance]` as features. Centroids are pre-seeded to meaningful archetypes so clusters are interpretable from the start:
+
+| Archetype          | Signal                             |
+| ------------------ | ---------------------------------- |
+| Neural Speedrunner | High accuracy, low response time   |
+| Methodical Scholar | Good accuracy, slow and deliberate |
+| Recoding Required  | Low accuracy, high response time   |
+| Balanced Explorer  | Average across all dimensions      |
+
+---
+
+## Tech Stack
+
+| Layer      | Technology                                                         |
+| ---------- | ------------------------------------------------------------------ |
+| Frontend   | React 19, Vite, Tailwind v4                                        |
+| Grid       | Isometric SVG, painter's algorithm                                 |
+| Fonts      | Orbitron (HUD), Exo 2 (body), JetBrains Mono (data)                |
+| Backend    | FastAPI, Python 3.10+                                              |
+| ML         | NumPy, scikit-learn (GP, K-Means), custom HLR + Thompson           |
+| Curriculum | Google Gemini API (144 concepts per topic, procedurally generated) |
+| Storage    | SQLite (sessions in-memory, no persistence across restarts)        |
+
+---
+
+## Setup
+
+### Prerequisites
+
+- Python 3.10+
+- Node.js 18+
+- Gemini API key — get one at [aistudio.google.com](https://aistudio.google.com/)
+
+### Backend
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Create `backend/.env`:
+
+```env
+GEMINI_API_KEY=your_key_here
+GEMINI_MODEL=gemini-2.0-flash
+DATABASE_URL=sqlite:///./forgettery.db
+```
+
+Start the server:
+
+```bash
+uvicorn app.main:app --port 8000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`.
+
+---
+
+## How to Play
+
+1. **Enter a topic** on the landing page. Gemini generates a full 12×12 curriculum grid (144 concepts across 6 difficulty categories) for that subject.
+2. **Move your probe** with WASD or arrow keys across the isometric grid.
+3. **Press Space** on any tile to trigger a Gemini-generated multiple-choice question about that concept.
+4. **Answer correctly** to stabilise the tile and extend its half-life. Answer wrong and the half-life shrinks — the tile will decay faster.
+5. **Watch the fog** — areas near tiles you've mastered clear up as the GP infers your likely performance there.
+6. **Follow the compass** — the Neural Guidance widget points toward whichever region the Thompson Sampler has flagged as most urgent or most worth exploring.
+7. **Check the dashboard** (right panel) for live decay curves, mastery distribution, your learner archetype, and session stats.
+
+Tiles decay continuously in real time. The map never stays static.
+
+---
+
+## Further Reading
+
+See [`explanation.md`](./explanation.md) for a full plain-English + technical breakdown of every ML system.

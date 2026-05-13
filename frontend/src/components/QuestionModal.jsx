@@ -4,83 +4,101 @@ import { submitAnswer } from "../api/client";
 
 export default function QuestionModal() {
   const { playerId, question, clearQuestion } = useGameStore();
-  const [selected, setSelected] = useState(null);
-  const [feedback, setFeedback] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selected, setSelected]     = useState(null);
+  const [feedback, setFeedback]     = useState(null);
+  const [isSubmitting, setSubmitting] = useState(false);
 
   if (!question) return null;
   const q = question.question;
 
   const handleSubmit = async () => {
     if (selected === null || isSubmitting) return;
-    
-    setIsSubmitting(true);
+    setSubmitting(true);
     const correct = selected === q.correct_index;
     const rt = Date.now() - question.started_at;
-    
     try {
       const result = await submitAnswer({
-        player_id: playerId,
-        concept_key: question.concept.key,
+        player_id:       playerId,
+        concept_key:     question.concept.key,
         correct,
         response_time_ms: rt,
       });
-      
       setFeedback({ correct, explanation: q.explanation, result });
-      
-      // Keep feedback visible for 3 seconds, then close
       setTimeout(() => {
-        setFeedback(null);
-        setSelected(null);
-        setIsSubmitting(false);
-        clearQuestion();
+        setFeedback(null); setSelected(null); setSubmitting(false); clearQuestion();
       }, 3000);
-    } catch (err) {
-      console.error("Answer submission failed:", err);
-      setIsSubmitting(false);
+    } catch {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-void border-2 border-ruby/50 rounded-2xl p-8 max-w-xl w-full shadow-[0_0_50px_rgba(168,85,247,0.2)]">
-        
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 50,
+      background: "rgba(0,0,0,0.8)",
+      backdropFilter: "blur(6px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 16,
+    }}>
+      <div style={{
+        background: "rgba(10,14,28,0.98)",
+        border: "1px solid rgba(0,229,255,0.2)",
+        borderRadius: 16,
+        padding: 32,
+        maxWidth: 520,
+        width: "100%",
+        boxShadow: "0 0 60px rgba(168,85,247,0.15), 0 0 120px rgba(0,229,255,0.05)",
+      }}>
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="px-3 py-1 bg-dark/40 border border-ruby/30 rounded-full text-[10px] text-orange uppercase tracking-widest font-bold">
-            {question.concept.category.replace("_", " ")}
-          </div>
-          <div className="text-xs text-red font-mono">
-            Difficulty: {question.concept.difficulty}/5
-          </div>
+        <div className="flex justify-between items-center mb-5">
+          <span style={{
+            padding: "3px 10px",
+            background: "rgba(168,85,247,0.15)",
+            border: "1px solid rgba(168,85,247,0.3)",
+            borderRadius: 20,
+            fontFamily: "JetBrains Mono, monospace",
+            fontSize: 10,
+            color: "#a855f7",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+          }}>
+            {question.concept.category.replace(/_/g, " ")}
+          </span>
+          <span className="font-mono text-[10px] text-text3">
+            Difficulty {question.concept.difficulty}/5
+          </span>
         </div>
 
-        {/* Concept Name */}
-        <h3 className="text-yellow text-sm uppercase tracking-widest mb-2 font-bold opacity-60">
-          Scanning Concept: {question.concept.name}
-        </h3>
+        {/* Concept name */}
+        <p className="font-mono text-[11px] uppercase tracking-widest text-text3 mb-1.5">
+          Scanning: {question.concept.name}
+        </p>
 
-        {/* Question Text */}
-        <h2 className="text-2xl text-bright-yellow font-bold leading-tight mb-8">
+        {/* Question */}
+        <h2 style={{
+          color: "#dfe0f0", fontSize: 20, fontWeight: 700,
+          lineHeight: 1.35, marginBottom: 24,
+        }}>
           {q.question}
         </h2>
 
         {/* Choices */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-2.5">
           {q.choices.map((choice, i) => {
-            let style = "border-ruby/20 hover:border-yellow/50 hover:bg-yellow/5";
-            
-            if (selected === i) {
-              style = "border-yellow bg-yellow/10 text-yellow shadow-[0_0_15px_rgba(125,249,255,0.2)]";
+            let borderColor = "rgba(255,255,255,0.06)";
+            let bg = "rgba(255,255,255,0.02)";
+            let textColor = "#dfe0f0";
+
+            if (!feedback && selected === i) {
+              borderColor = "#00e5ff"; bg = "rgba(0,229,255,0.08)"; textColor = "#00e5ff";
             }
-            
             if (feedback) {
               if (i === q.correct_index) {
-                style = "border-green-500 bg-green-500/20 text-green-400";
-              } else if (selected === i && i !== q.correct_index) {
-                style = "border-red-500 bg-red-500/20 text-red-400";
+                borderColor = "#10b981"; bg = "rgba(16,185,129,0.12)"; textColor = "#10b981";
+              } else if (selected === i) {
+                borderColor = "#ef4444"; bg = "rgba(239,68,68,0.12)"; textColor = "#ef4444";
               } else {
-                style = "opacity-30 border-ruby/10";
+                textColor = "rgba(255,255,255,0.25)";
               }
             }
 
@@ -89,38 +107,81 @@ export default function QuestionModal() {
                 key={i}
                 disabled={!!feedback}
                 onClick={() => setSelected(i)}
-                className={`w-full text-left px-6 py-4 rounded-xl border-2 transition-all duration-200 group flex items-center gap-4 ${style}`}
+                style={{
+                  width: "100%", textAlign: "left",
+                  padding: "12px 16px",
+                  borderRadius: 10,
+                  border: `1px solid ${borderColor}`,
+                  background: bg,
+                  color: textColor,
+                  cursor: feedback ? "default" : "pointer",
+                  display: "flex", alignItems: "center", gap: 12,
+                  transition: "all 0.2s",
+                }}
               >
-                <span className="w-8 h-8 rounded-lg bg-dark/30 border border-ruby/30 flex items-center justify-center text-xs group-hover:bg-yellow group-hover:text-void transition-colors">
+                <span style={{
+                  width: 28, height: 28, borderRadius: 6,
+                  background: selected === i && !feedback ? "#00e5ff" : "rgba(255,255,255,0.06)",
+                  color: selected === i && !feedback ? "#06060f" : "inherit",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "JetBrains Mono, monospace", fontSize: 11, fontWeight: 700,
+                  flexShrink: 0, transition: "all 0.2s",
+                }}>
                   {String.fromCharCode(65 + i)}
                 </span>
-                <span className="text-sm font-medium">{choice.split(") ").pop()}</span>
+                <span style={{ fontSize: 14, fontWeight: 500 }}>
+                  {choice.replace(/^[A-D]\)\s*/, "")}
+                </span>
               </button>
             );
           })}
         </div>
 
-        {/* Feedback Section */}
+        {/* Feedback / Submit */}
         {feedback ? (
-          <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className={`text-lg font-bold mb-2 ${feedback.correct ? "text-green-400" : "text-red-400"}`}>
-              {feedback.correct ? "✓ NEURAL LINK STABILIZED" : "✗ RECALL FAILURE"}
+          <div className="mt-6">
+            <div style={{
+              fontSize: 15, fontWeight: 700, marginBottom: 8,
+              color: feedback.correct ? "#10b981" : "#ef4444",
+              fontFamily: "Orbitron, sans-serif",
+            }}>
+              {feedback.correct ? "✓ NEURAL LINK STABILISED" : "✗ RECALL FAILURE"}
             </div>
-            <p className="text-yellow text-sm leading-relaxed bg-dark/20 p-4 rounded-lg border border-ruby/10">
+            <p className="text-text3 text-sm leading-relaxed p-3 rounded-lg"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
               {feedback.explanation}
             </p>
-            <div className="mt-4 flex gap-4 text-[10px] text-red font-mono uppercase tracking-widest">
-              <div>New Half-Life: <span className="text-yellow">{feedback.result.updated.half_life.toFixed(1)}s</span></div>
-              <div>Streak: <span className="text-yellow">{feedback.result.updated.streak}</span></div>
+            <div className="mt-3 flex gap-5 font-mono text-[10px] text-text3 uppercase tracking-widest">
+              <span>
+                Half-life: <span style={{ color: "#00e5ff" }}>{feedback.result.updated.half_life.toFixed(1)}s</span>
+              </span>
+              <span>
+                Streak: <span style={{ color: "#a855f7" }}>{feedback.result.updated.streak}</span>
+              </span>
             </div>
           </div>
         ) : (
           <button
             onClick={handleSubmit}
             disabled={selected === null || isSubmitting}
-            className="mt-8 w-full py-4 bg-yellow text-void font-black uppercase tracking-[0.3em] rounded-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-20 disabled:grayscale"
+            style={{
+              marginTop: 24,
+              width: "100%",
+              padding: "14px 0",
+              background: "#00e5ff",
+              color: "#06060f",
+              fontFamily: "Orbitron, sans-serif",
+              fontWeight: 700,
+              fontSize: 13,
+              letterSpacing: "0.2em",
+              borderRadius: 10,
+              border: "none",
+              cursor: selected !== null && !isSubmitting ? "pointer" : "not-allowed",
+              opacity: selected !== null && !isSubmitting ? 1 : 0.25,
+              transition: "all 0.2s",
+            }}
           >
-            {isSubmitting ? "Processing..." : "Commit Answer"}
+            {isSubmitting ? "PROCESSING…" : "COMMIT ANSWER"}
           </button>
         )}
       </div>

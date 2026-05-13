@@ -1,45 +1,62 @@
-import { Navigation } from "lucide-react";
 import { useGameStore } from "../store";
 
 export default function Compass() {
-  const { compass } = useGameStore((s) => s.ml);
-  const { player } = useGameStore();
+  const compass = useGameStore(s => s.ml.compass);
+  const player  = useGameStore(s => s.player);
 
   if (!compass) return null;
 
-  // Calculate rotation toward target
   const dx = compass.target_x - player.x;
   const dy = compass.target_y - player.y;
   const angle = Math.atan2(dy, dx) * (180 / Math.PI);
 
   return (
-    <div className="absolute top-8 right-8 w-64 p-4 bg-void/90 border border-ruby/30 rounded-2xl shadow-2xl backdrop-blur-md">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-[10px] text-red uppercase tracking-widest font-black">
-          Neural Guidance
-        </div>
-        <div className={`px-2 py-0.5 rounded text-[8px] uppercase font-bold ${
-          compass.reason === "High Urgency" ? "bg-red-500/20 text-red-400" : "bg-yellow/20 text-yellow"
-        }`}>
-          {compass.reason}
-        </div>
+    <div style={{
+      position: "absolute",
+      top: 12, right: 12,
+      background: "rgba(10,14,28,0.85)",
+      border: "1px solid rgba(0,229,255,0.15)",
+      borderRadius: 10,
+      padding: "10px 14px",
+      backdropFilter: "blur(10px)",
+      zIndex: 20,
+      minWidth: 180,
+    }}>
+      <div className="font-mono text-[9px] text-text3 uppercase tracking-[0.2em] mb-2">
+        Neural Guidance
       </div>
-
-      <div className="flex items-center gap-4">
-        <div 
-          className="p-3 bg-dark/30 rounded-full border border-ruby/20 transition-transform duration-1000 ease-out"
-          style={{ transform: `rotate(${angle}deg)` }}
-        >
-          <Navigation className="w-6 h-6 text-yellow fill-yellow/20" />
+      <div className="flex items-center gap-3">
+        <div style={{
+          width: 36, height: 36,
+          background: "rgba(0,229,255,0.08)",
+          border: "1px solid rgba(0,229,255,0.2)",
+          borderRadius: "50%",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          transform: `rotate(${angle}deg)`,
+          transition: "transform 0.6s ease",
+          flexShrink: 0,
+        }}>
+          <span style={{ color: "#00e5ff", fontSize: 16 }}>➤</span>
         </div>
-        
         <div className="flex-1 min-w-0">
-          <div className="text-[10px] text-ruby uppercase font-bold tracking-tighter">Target Sector</div>
-          <div className="text-sm font-black text-bright-yellow truncate uppercase tracking-wider">
-            {compass.recommended_region.replace("_", " ")}
+          <div className="font-mono text-[8px] text-text3 uppercase mb-0.5">Target Sector</div>
+          <div className="font-mono text-[11px] font-bold text-cyan truncate uppercase tracking-wider">
+            {compass.recommended_region.replace(/_/g, " ")}
           </div>
-          <div className="text-[9px] text-yellow/60 truncate italic">
-            → {compass.target_name}
+          <div style={{
+            display: "inline-block",
+            padding: "1px 6px",
+            marginTop: 3,
+            background: compass.reason === "High Urgency" ? "rgba(239,68,68,0.15)" : "rgba(168,85,247,0.15)",
+            border: `1px solid ${compass.reason === "High Urgency" ? "rgba(239,68,68,0.3)" : "rgba(168,85,247,0.3)"}`,
+            borderRadius: 4,
+            fontFamily: "JetBrains Mono, monospace",
+            fontSize: 8,
+            color: compass.reason === "High Urgency" ? "#ef4444" : "#a855f7",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+          }}>
+            {compass.reason}
           </div>
         </div>
       </div>

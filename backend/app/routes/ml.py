@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException
 import numpy as np
 from typing import List, Dict, Any
 from app.services.game_state import session_manager
-from app.services.concept_graph import global_graph as graph
 from app.models.gp_uncertainty import UncertaintyModel
 from app.models.thompson import thompson_recommend
 from app.models.profiler import get_profiler
@@ -30,7 +29,7 @@ async def get_halflives(player_id: str):
         if m.n_exposures > 0:
             rows.append({
                 "concept_key": k,
-                "name": graph.concepts[k]["name"],
+                "name": s.graph.concepts[k]["name"],
                 "half_life": m.half_life,
                 "recall_probability": s.hlr.predict_recall(m),
                 "n_correct": m.n_correct,
@@ -49,29 +48,30 @@ async def get_uncertainty(player_id: str):
     if not s:
         raise HTTPException(404, "Session not found")
         
+    g = s.graph
     model = UncertaintyModel()
-    
+
     # 1. Prepare Training Data
     X_train = []
     y_train = []
     for k, m in s.memory.memories.items():
         if m.n_exposures > 0:
-            X_train.append(graph.get_features(k))
+            X_train.append(g.get_features(k))
             y_train.append(m.n_correct / m.n_exposures)
-            
+
     # 2. Fit and Predict
     if len(X_train) >= 2:
         model.fit(np.array(X_train), np.array(y_train))
-        
-    mean, std = model.predict(graph.feature_matrix)
-    
+
+    mean, std = model.predict(g.feature_matrix)
+
     # 3. Format results
     out = []
-    for i, k in enumerate(graph.keys):
+    for i, k in enumerate(g.keys):
         out.append({
             "concept_key": k,
-            "x": graph.concepts[k]["grid_x"],
-            "y": graph.concepts[k]["grid_y"],
+            "x": g.concepts[k]["grid_x"],
+            "y": g.concepts[k]["grid_y"],
             "mean": float(mean[i]),
             "std": float(std[i]),
         })
@@ -85,23 +85,22 @@ async def get_compass(player_id: str):
     if not s:
         raise HTTPException(404, "Session not found")
         
+    g = s.graph
     # Calculate aggregate urgency per category
-    categories = set(c["category"] for c in graph.all_concepts())
+    categories = set(c["category"] for c in g.all_concepts())
     urgency_map = {}
     for cat in categories:
-        keys = [k for k, c in graph.concepts.items() if c["category"] == cat]
-        # Urgency of a region is the max forgottenness of its concepts
+        keys = [k for k, c in g.concepts.items() if c["category"] == cat]
         urgency_map[cat] = float(max(
             (1.0 - s.hlr.predict_recall(s.memory.get(k))) for k in keys
         ))
-        
+
     rec = thompson_recommend(s.thompson_alpha, s.thompson_beta, urgency_map)
-    
+
     # Find a specific target tile in the recommended region
-    target_keys = [k for k, c in graph.concepts.items() if c["category"] == rec["recommended_region"]]
-    # Prioritize the one with the lowest recall probability
+    target_keys = [k for k, c in g.concepts.items() if c["category"] == rec["recommended_region"]]
     target_key = min(target_keys, key=lambda k: s.hlr.predict_recall(s.memory.get(k)))
-    target_concept = graph.concepts[target_key]
+    target_concept = g.concepts[target_key]
     
     return {
         **rec,

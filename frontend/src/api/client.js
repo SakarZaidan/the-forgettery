@@ -8,6 +8,8 @@ const api = axios.create({
 });
 
 export const startGame = (payload) => api.post("/game/start", payload).then((r) => r.data);
+export const startPreset = (preset = "competitive_programming") =>
+  api.post(`/game/start-preset?preset=${preset}`).then((r) => r.data);
 export const getState = (id) => api.get(`/game/state/${id}`).then((r) => r.data);
 export const getQuestion = (id, key) =>
   api.get(`/game/question/${id}/${key}`).then((r) => r.data);

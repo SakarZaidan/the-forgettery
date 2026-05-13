@@ -10,37 +10,37 @@ const MOVEMENT_KEYS = {
 };
 
 export function usePlayerMovement() {
-  const { 
-    playerId, 
-    player, 
-    tiles, 
-    gridSize, 
-    setQuestion, 
+  const {
+    playerId,
+    player,
+    tiles,
+    gridSize,
+    setQuestion,
     question,
-    updatePlayerPos 
+    updatePlayerPos
   } = useGameStore();
 
   const handleMove = useCallback(async (dx, dy) => {
-    if (!playerId || question) return; // Block movement if answering a question
-    
+    if (!playerId || question) return;
+
     const nx = player.x + dx;
     const ny = player.y + dy;
-    
+
     // 1. Boundary Check
     if (nx < 0 || ny < 0 || nx >= gridSize || ny >= gridSize) return;
-    
-    // 2. Void Check (Client-side prediction)
+
+    // 2. Void Check — only blocks tiles that have been visited and forgotten
     const targetTile = tiles.find(t => t.x === nx && t.y === ny);
-    if (targetTile && targetTile.recall_probability < 0.2) {
+    if (targetTile && targetTile.n_exposures > 0 && targetTile.recall_probability < 0.2) {
       console.warn("Entered the Void - Movement Blocked");
       return;
     }
-    
+
     try {
       // 3. Backend Sync
       await movePlayer({ player_id: playerId, x: nx, y: ny });
       updatePlayerPos(nx, ny);
-      
+
       // 4. Trigger Question if tile exists
       if (targetTile) {
         const qData = await getQuestion(playerId, targetTile.key);
@@ -51,16 +51,34 @@ export function usePlayerMovement() {
     }
   }, [playerId, player, tiles, gridSize, question, setQuestion, updatePlayerPos]);
 
+  // SPACE: re-quiz the tile the player is currently standing on
+  const handleReview = useCallback(async () => {
+    if (!playerId || question) return;
+    const currentTile = tiles.find(t => t.x === player.x && t.y === player.y);
+    if (!currentTile) return;
+    try {
+      const qData = await getQuestion(playerId, currentTile.key);
+      setQuestion({ ...qData, started_at: Date.now() });
+    } catch (err) {
+      console.error("Review fetch failed:", err);
+    }
+  }, [playerId, player, tiles, question, setQuestion]);
+
   useEffect(() => {
     const onKeyDown = (e) => {
+      if (e.key === " ") {
+        e.preventDefault();
+        handleReview();
+        return;
+      }
       const delta = MOVEMENT_KEYS[e.key];
       if (delta) {
         e.preventDefault();
         handleMove(delta[0], delta[1]);
       }
     };
-    
+
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [handleMove]);
+  }, [handleMove, handleReview]);
 }

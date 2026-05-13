@@ -18,9 +18,16 @@ class GameSession:
             hlr=self.hlr,
         )
         
-        # Spawn player at the first 'basics' tile (deterministic start)
-        basics = [c for c in concept_graph.all_concepts() if c["category"] == "basics"]
-        first = basics[0] if basics else concept_graph.all_concepts()[0]
+        # Spawn at the most foundational tile: prefer a "basics"-like category at (0,0),
+        # then any tile at (0,0), then the first concept in the graph.
+        origin = concept_graph.get_concept_at(0, 0)
+        if origin:
+            first = origin
+        else:
+            basics = [c for c in concept_graph.all_concepts()
+                      if "basic" in c["category"].lower()]
+            first = min(basics, key=lambda c: (c["grid_x"], c["grid_y"])) \
+                    if basics else concept_graph.all_concepts()[0]
         self.player_x = first["grid_x"]
         self.player_y = first["grid_y"]
         
